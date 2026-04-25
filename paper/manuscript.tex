@@ -29,12 +29,11 @@
   urlcolor=blue!60!black
 }
 
-\title{Corpas-Core: A Constitutional Architecture for Personal Agentic AI Systems}
+\title{Corpas-Core: A Governance Gateway and Constitutional Layer for Personal Agentic AI Systems}
 
 \author{Manuel Corpas\\
   School of Life Sciences, University of Westminster, London, UK\\
   Alan Turing Institute Fellow\\
-  Founder, ClawBio\\
   \texttt{m.corpas@westminster.ac.uk}
 }
 
@@ -49,17 +48,17 @@
 % ============================================================================
 \begin{abstract}
 
-Personal AI systems are increasingly deployed by knowledge workers, but most current implementations exhibit three structural failure modes: absence of strategic alignment with the user's long-term objectives, memory degradation from undifferentiated archival retrieval, and erosion of the user's professional voice through regression to a generic register. This paper presents Corpas-Core, an architecture designed to address these failures through a machine-readable constitution governing a society of specialised agents, a four-tier memory hierarchy with explicit decay and contradiction detection, a single enforceable governance gateway, and a bounded reflection protocol that revises preferences while protecting immutable principles.
+Personal AI systems are increasingly deployed by knowledge workers, but most current implementations exhibit three failure modes that affect knowledge workers whose professional output depends on a sustained analytical register: absence of strategic alignment with the user's long-term objectives, memory degradation from undifferentiated archival retrieval, and erosion of the user's professional voice through regression to a generic register. This paper presents Corpas-Core, an architecture designed to address these failures through a machine-readable constitution governing a society of specialised agents, a four-tier memory hierarchy with explicit decay and contradiction detection, a single enforceable governance gateway, and a bounded reflection protocol that revises preferences while protecting immutable principles.
 
 The system is organised around five decision rules that filter inbound requests for mission alignment, capacity feasibility, prototype tractability, compounding potential, and anti-fragility. A second layer ranks rule-passing options by asymmetric leverage on the user's mission. Confidence is represented as a decomposed vector across four uncertainty types, and abstention is a first-class output. Constitutional self-revision is permitted only over a designated revisable layer; immutable principles are out of scope for automated modification.
 
-The governance gateway, \texttt{govern()}, is implemented as a deterministic, ten-step pipeline through which every agent must pass before acting. It enforces hard invariants before scoring, detects adversarial manipulation patterns in inbound requests, and appends every decision to a cryptographically hashed, append-only ledger. The current implementation (Layer~0) is intentionally deterministic for auditability and safety; probabilistic reasoning layers are deferred to future work. The system is validated by 72 passing tests, including a dedicated prompt-injection suite, and requires no large language model calls at the governance layer.
+The governance gateway, \texttt{govern()}, is implemented as a deterministic, ten-step pipeline through which every agent must pass before acting. It enforces hard invariants before scoring, detects adversarial manipulation patterns in inbound requests, and appends every decision to a cryptographically hashed, append-only ledger. The current implementation (Layer~0) is intentionally deterministic for auditability and safety; probabilistic reasoning layers are deferred to future work. The implementation is exercised by 72 unit tests covering the Layer 0 components, including a dedicated prompt-injection suite, and requires no large language model calls at the governance layer.
 
-This paper presents the architecture, its design rationale, a formal objective function under bounded satisficing \citep{simon1956rational}, an evaluation protocol for longitudinal N-of-1 deployment \citep{lillie2011nof1}, an ablation analysis of the governance components, and a comparative assessment against existing personal AI approaches. Quantitative results from sustained deployment are forthcoming; the present contribution is the architecture, its formalisation, and the evaluation framework by which it will be assessed.
+This paper presents the architecture, its design rationale, a constraint specification under bounded satisficing \citep{simon1956rational}, an evaluation protocol for longitudinal N-of-1 deployment \citep{lillie2011nof1}, an ablation analysis of the governance components, and a comparative assessment against existing personal AI approaches. Quantitative results from sustained deployment are forthcoming; the present contribution is the architecture, its formalisation, and the evaluation framework by which it will be assessed. Source code is available at \url{https://github.com/manuelcorpas/corpas-core}.
 
 \end{abstract}
 
-\noindent\textbf{Keywords:} personal AI systems; agentic architectures; retrieval-augmented generation; constitutional AI; multi-agent systems; cognitive operating systems; strategic decision-making; memory hierarchies; governance gateway; bounded satisficing
+\noindent\textbf{Keywords:} personal AI systems; agentic architectures; retrieval-augmented generation; constitutional AI; multi-agent systems; strategic decision-making; memory hierarchies; governance gateway; bounded satisficing
 
 % ============================================================================
 % 1. INTRODUCTION
@@ -68,11 +67,11 @@ This paper presents the architecture, its design rationale, a formal objective f
 
 Knowledge workers face a structural mismatch between the demands placed on them and their cognitive capacity to respond. Large language models have not resolved this mismatch; they have intensified it by lowering the cost of generating requests without reducing the cost of attending to them. The result is an acceleration of inbound volume with no corresponding improvement in prioritisation, filtering, or strategic coherence.
 
-Personal AI systems are proposed as a remedy. The dominant implementation pattern is shallow: a chat interface backed by retrieval-augmented generation. These systems fail to align with the user's long-term mission, drift from the user's professional voice over time, and lack any principled mechanism for self-improvement. They are locally helpful but globally incoherent, optimising for the immediate query at the expense of the user's sustained trajectory.
+Personal AI systems are proposed as a remedy. The dominant implementation pattern is shallow: a chat interface backed by retrieval-augmented generation. These systems fail to align with the user's long-term mission, drift from the user's professional voice over time, and lack any principled mechanism for self-improvement. These systems respond fluently to whatever is asked but have no mechanism to evaluate whether a response serves the user's sustained objectives.
 
-This paper presents Corpas-Core, an architecture designed to function as a personal cognitive operating system. The system is governed by a machine-readable constitution that specifies decision rules, voice constraints, memory policy, agent roles, and immutable invariants. A bounded reflection protocol permits evolution of the system's behaviour, but only within a defined revisable layer. This applies the constitutional AI pattern introduced by \citet{bai2022constitutional} at the individual user level, rather than at the training-time alignment level for which it was originally designed.
+This paper presents Corpas-Core, an architecture designed to function as a personal governance layer for agentic AI. The system is governed by a machine-readable constitution that specifies decision rules, voice constraints, memory policy, agent roles, and immutable invariants. A bounded reflection protocol permits evolution of the system's behaviour, but only within a defined revisable layer. This applies the constitutional AI pattern introduced by \citet{bai2022constitutional} at the individual user level, rather than at the training-time alignment level for which it was originally designed. User-level behaviour shaping through system prompts and custom instructions is now widespread (e.g. Anthropic Projects, OpenAI custom GPTs, Google Gemini Gems), but these mechanisms are not auditable, are not separated into immutable and revisable layers, and lack a runtime governance enforcement point. Corpas-Core addresses this gap.
 
-This version extends the original system description with five additions: (i) a concrete, tested governance gateway; (ii) a formal objective function under bounded satisficing; (iii) an evaluation protocol for N-of-1 deployment; (iv) an ablation analysis of the governance components; and (v) a comparative assessment against existing approaches in the personal AI space.
+This version extends the original system description with five additions: (i) a concrete, tested governance gateway; (ii) a constraint specification under bounded satisficing; (iii) an evaluation protocol for N-of-1 deployment; (iv) an ablation analysis of the governance components; and (v) a comparative assessment against existing approaches in the personal AI space.
 
 % ============================================================================
 % 2. PROBLEM STATEMENT
@@ -81,11 +80,11 @@ This version extends the original system description with five additions: (i) a 
 
 \subsection{Strategic Drift}
 
-Generic AI assistants are locally helpful but globally misaligned. They respond to whatever is asked without reference to any model of the user's long-term objectives. Over weeks and months, this produces strategic drift: the user's time and attention are consumed by whatever arrives in the prompt, regardless of whether it advances or impedes their declared mission. The assistant has no concept of mission, no capacity to decline, and no mechanism to distinguish high-priority work from low-priority distraction.
+Generic AI assistants are locally helpful but globally misaligned. They respond to whatever is asked without reference to any model of the user's long-term objectives. This is distinct from the goal-anchoring approaches explored in task-decomposition systems such as BabyAGI and WebGPT-style planners, which maintain a goal hierarchy but do not filter incoming requests against declared mission constraints. Over weeks and months, this produces strategic drift: the user's time and attention are consumed by whatever arrives in the prompt, regardless of whether it advances or impedes their declared mission. The assistant has no concept of mission, no capacity to decline, and no mechanism to distinguish high-priority work from low-priority distraction.
 
 \subsection{Memory Pathology}
 
-Embedding all archival content into a vector store produces retrieval quality that degrades rapidly with scale. Most stored content is noise: meeting transcripts, outdated plans, superseded decisions. Retrieval-augmented generation returns the loudest match by cosine similarity, not the wisest one by relevance to the current context. There is no decay, no contradiction detection, and no curation policy. The result is a memory system that grows without improving.
+Embedding all archival content into a vector store produces retrieval quality that degrades rapidly with scale. Most stored content is noise: meeting transcripts, outdated plans, superseded decisions. Retrieval-augmented generation returns the loudest match by cosine similarity \citep{liu2023lost}, not the wisest one by relevance to the current context. There is no decay, no contradiction detection, and no curation policy. The result is a memory system that grows without improving.
 
 \subsection{Identity Erosion}
 
@@ -106,7 +105,7 @@ Retrieval-augmented generation systems \citep{lewis2020rag} address the persiste
 
 \subsection{Constitutional AI}
 
-\citet{bai2022constitutional} demonstrated that a set of written principles can constrain model behaviour during training, producing outputs that are more helpful and less harmful without requiring human feedback on every example. This is a powerful pattern, but it has not yet been applied systematically at the user level. Corpas-Core adopts and extends this pattern: the constitution is not a training-time artefact but a runtime document that governs agent behaviour, decision rules, and self-revision boundaries.
+\citet{bai2022constitutional} demonstrated that a set of written principles can constrain model behaviour during training, producing outputs that are more helpful and less harmful without requiring human feedback on every example. This is a powerful pattern, but it has not, to the author's knowledge, been applied as a runtime governance mechanism at the individual user level with auditable enforcement, immutable/revisable separation, and append-only decision logging. User-level system prompts and rule-based behaviour shaping are now widely deployed (Anthropic Projects, OpenAI custom GPTs, Google Gemini Gems), but these are not separated into immutable and revisable layers and lack a runtime governance enforcement point. Corpas-Core adopts and extends this pattern: the constitution is not a training-time artefact but a runtime document that governs agent behaviour, decision rules, and self-revision boundaries.
 
 \subsection{Multi-Agent Frameworks}
 
@@ -118,20 +117,28 @@ Table~\ref{tab:comparison} summarises the structural differences between general
 
 \begin{table}[H]
 \centering
-\caption{Comparative assessment of personal AI approaches across five dimensions.}
+\caption{Structural comparison of personal AI approaches. Assessments describe architectural capabilities, not the performance of any specific product.}
 \label{tab:comparison}
-\begin{tabular}{@{}lccc@{}}
+\begin{tabular}{@{}lp{3.2cm}p{3.2cm}p{3.2cm}@{}}
 \toprule
-\textbf{Dimension} & \textbf{General-purpose LLM} & \textbf{RAG-only} & \textbf{Corpas-Core} \\
+\textbf{Dimension} & \textbf{General-purpose LLM} & \textbf{RAG-only system} & \textbf{Corpas-Core} \\
 \midrule
-Strategic alignment   & None          & None          & Constitutional rules \\
-Memory quality        & Session only  & Flat vector   & Four-tier hierarchy  \\
-Voice preservation    & None          & None          & Identity auditor     \\
-Decision consistency  & Stochastic    & Stochastic    & Deterministic gateway \\
-Adversarial robustness & None         & None          & Manipulation detection \\
+Strategic alignment & Per-session custom instructions; not persistent or auditable across sessions & Retrieves prior context but provides no filtering or prioritisation mechanism & Deterministic rules filter against declared mission anchors; governance gateway enforces at runtime \\
+\addlinespace
+Memory quality & Shallow per-user memory features; no decay or contradiction handling & All archived content equally weighted; no decay, no curation policy & Four-tier hierarchy with exponential decay, contradiction detection, and embed-only-if curation \\
+\addlinespace
+Voice preservation & Custom instructions shape register but are not audited for drift & Retrieval may surface voice examples but generation is unconstrained & Critic agent checks against forbidden constructs and voice register before output \\
+\addlinespace
+Decision consistency & Model-level safety classifiers; no user-configurable decision framework & No decision logic beyond retrieval relevance & Deterministic rule evaluation with append-only audit trail and constitutional hashing \\
+\addlinespace
+Adversarial robustness & Model-level safety training and content filters & No user-level manipulation detection & Heuristic manipulation detection (6 patterns); invariant enforcement; not a complete adversarial defence \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+This comparison describes architectural capabilities of each approach class. It does not constitute an empirical evaluation; quantitative comparisons would require controlled deployment across comparable user populations, which has not been conducted.
+
+The limitations of the present work, including single-user calibration, absence of quantitative evaluation, and brittleness of keyword-based rules, are discussed in Section~8. The reader is encouraged to consult that section before evaluating the architectural claims that follow.
 
 % ============================================================================
 % 4. THE CORPAS-CORE ARCHITECTURE
@@ -183,11 +190,11 @@ Five rules serve as deterministic filters through which every inbound request mu
 
 \textbf{R2, Deliverable protection}: a capacity model enforces a 50-hour weekly budget with a 20-hour deep-work minimum and a 5-hour buffer. Requests that would exceed capacity fail this rule.
 
-\textbf{R3, Prototype bias}: analysis-heavy language patterns (e.g., ``comprehensive review,'' ``full assessment'') trigger redirection to a prototype-first alternative.
+\textbf{R3, Prototype bias}: analysis-heavy language patterns (e.g., ``comprehensive review,'' ``full assessment'') trigger redirection to a prototype-first alternative. This heuristic will produce false positives on legitimate review requests (e.g. ``write a comprehensive literature review''). The false-positive rate will be measured during Phase 1 and reported in a subsequent paper.
 
 \textbf{R4, Compounding}: one-shot patterns (tasks with no downstream reuse) are detected and downgraded in priority.
 
-\textbf{R5, Anti-fragility}: six dimensions of fragility are scored (single point of failure, external dependency, reversibility, learning potential, optionality, time sensitivity). High fragility scores trigger rejection.
+\textbf{R5, Anti-fragility}: six dimensions of fragility are scored (single point of failure, external dependency, reversibility, learning potential, optionality, time sensitivity). High fragility scores trigger rejection. The six-dimension scoring procedure for R5 is not fully specified in the current Layer 0 implementation; the current version uses keyword detection for fragility signals. A structured scoring rubric is deferred to Layer 1.
 
 The verdict hierarchy is: R1 or R2 fail = NO; R5 fail = NO; R3 fail = PROTOTYPE (redirected); R4 fail = YES but downgraded; all pass = YES.
 
@@ -239,17 +246,27 @@ def govern(request, constitution, state):
 
 The critical design choice is that invariant checks (Step~2) execute before scoring (Steps~4--6). This means that invariant-violating requests are blocked regardless of how high they might score on mission alignment or leverage. The gateway is deterministic: given the same constitution, state, and request, it produces the same verdict every time.
 
+The \texttt{parse\_request} function in Step 1 performs keyword extraction and pattern matching against the constitutional vocabulary; it does not perform semantic parsing or intent classification, which are deferred to Layer 1.
+
 \subsection{Asymmetric Leverage Layer}
 
-Options that pass the decision rules are ranked by their non-linear downstream effects on the user's mission. This is not maximisation; it is bounded satisficing \citep{simon1956rational}. The system identifies options that are ``good enough'' across all dimensions and then selects from among them the option with the highest asymmetric upside. This avoids the pathology of optimising a single metric at the expense of all others.
+Options that pass the decision rules are ranked by their non-linear downstream effects on the user's mission. This is not maximisation; it is bounded satisficing \citep{simon1956rational}. The system identifies options that are ``good enough'' across all dimensions and then selects from among them the option with the highest asymmetric upside.
+
+In the current Layer 0 implementation, the leverage score is not computed by a learned model or LLM inference. It is a placeholder value derived from keyword matching against the constitutional mission anchors. A structured leverage scoring function is identified as future work for Layer 1, where LLM-based assessment can operate within the safety boundary of Layer 0. The leverage\_score field in the worked examples (Section 5) should be read as illustrative.
 
 \subsection{Epistemic Policy}
 
-Confidence is not a single scalar. It is decomposed into a vector with four components: missing data (information the system knows it lacks), conflicting data (contradictions in the memory hierarchy), reasoning uncertainty (the system's estimate of its own inferential reliability), and task ambiguity (underspecification of the request itself). For high-stakes decisions, any component below a threshold of 0.6 triggers abstention. Abstention is a first-class output, not a failure mode. A system that knows when it does not know is more valuable than one that always produces an answer.
+Confidence is not a single scalar. It is decomposed into a vector with four components: missing data (information the system knows it lacks), conflicting data (contradictions in the memory hierarchy), reasoning uncertainty (the system's estimate of its own inferential reliability), and task ambiguity (underspecification of the request itself). For high-stakes decisions, any component below a threshold of 0.6 triggers abstention. The threshold of 0.6 is a deployment hyperparameter set by the author; it is not derived from calibration literature (cf. \citet{wang2023selfconsistency} on sampling-based confidence). Empirical calibration of this value is listed as a limitation in Section 8. Abstention is a first-class output, not a failure mode. A system that knows when it does not know is more valuable than one that always produces an answer.
 
 \subsection{Manipulation Detection}
 
-The governance gateway includes a heuristic first-line defence against adversarial manipulation. This is not a complete adversarial solution; it is a practical filter that catches common prompt-injection patterns. Six manipulation patterns are detected: role override attempts, system prompt extraction, instruction injection, emotional manipulation, authority impersonation, and urgency fabrication. The detection module is validated by 13 dedicated tests. It complements, rather than replaces, the invariant enforcement in Step~2 of the pipeline.
+The governance gateway includes a heuristic first-line defence against adversarial manipulation. This is not a complete adversarial solution; it is a practical filter that catches common prompt-injection patterns under a specific threat model.
+
+\textbf{Threat model.} The assumed attacker has black-box, prompt-only access to the system. The attacker can craft arbitrary action descriptions but cannot modify the constitution, the codebase, or the memory hierarchy. The attacker does not have knowledge of the specific manipulation patterns checked.
+
+Six manipulation patterns are detected: role override attempts, system prompt extraction, instruction injection, emotional manipulation, authority impersonation, and urgency fabrication. Detection uses regular-expression pattern matching against the action description.
+
+The detection module is exercised by 13 unit tests. These tests verify that known patterns are detected; they do not verify robustness against held-out adversarial inputs. No claim of robustness against determined or adaptive adversaries is made. Existing prompt-injection benchmarks (TensorTrust, Gandalf, AdvBench-derived sets) have not been evaluated against; doing so is identified as future work. The module should be understood as a heuristic filter whose coverage will expand as new attack patterns are observed in deployment.
 
 \subsection{Reflection Protocol}
 
@@ -257,12 +274,14 @@ The system runs two reflection cycles. A weekly cycle reviews accumulated decisi
 
 Both cycles are bounded: the Reflector agent can propose edits only to the revisable preference layer \citep{shinn2023reflexion}. Immutable principles are outside its write scope. All proposed revisions require explicit user approval before taking effect. The Reflector proposes; the user disposes.
 
-\subsection{Formal Objective Function}
+A structural property of this design is that reflection bounded to the revisable layer cannot, over any sequence of approved revisions, alter the immutable invariants. This follows directly from the YAML schema separation: the Reflector's write scope is defined by the \texttt{revisable\_preferences} key, and the \texttt{immutable\_principles} key is outside that scope. No sequence of preference edits can modify a principle, because the two namespaces are disjoint in the schema.
+
+\subsection{Constraint Specification}
 
 The system's decision-making is formalised as follows. Let $\mathcal{A}$ denote the set of candidate actions. Define $I(a)$ as the set of invariant violations for action $a$, $R(a)$ as the rule verdict, and $L(a)$ as the asymmetric leverage score. The optimal action set is:
 
 \begin{equation}
-\mathcal{A}^* = \{ a \in \mathcal{A} \mid I(a) = \emptyset \;\wedge\; R(a) = \textsc{pass} \;\wedge\; L(a) \geq \tau_L \}
+\mathcal{A}^* = \{ a \in \mathcal{A} \mid I(a) = \emptyset \;\wedge\; R(a) = \text{PASS} \;\wedge\; L(a) \geq \tau_L \}
 \end{equation}
 
 \noindent subject to the constraints:
@@ -274,13 +293,15 @@ The system's decision-making is formalised as follows. Let $\mathcal{A}$ denote 
 \text{confidence}(a) &\geq \tau_c \quad \text{for high-stakes } a
 \end{align}
 
-This is bounded satisficing \citep{simon1956rational}, not utility maximisation. The system does not search for the globally optimal action; it identifies the set of actions that satisfy all constraints and selects from among them. A monthly Goodhart audit computes the rank correlation between leading proxies (rule pass rate, leverage scores) and lagging signals (mission progress, decision quality) to detect metric gaming \citep{goodhart1975problems, strathern1997improving}.
+This is a constraint specification, not a formal proof. No theorem is stated or proved. The construction specifies which actions are admissible; it does not characterise when the admissible set is non-empty, the relationship between $\tau_L$ and selection behaviour, or upper bounds on rule evasion under stated adversary models. These are identified as targets for formal analysis in future work.
+
+This is bounded satisficing \citep{simon1956rational}, not utility maximisation. The system does not search for the globally optimal action; it identifies the set of actions that satisfy all constraints and selects from among them. A monthly Goodhart audit \citep{manheim2018goodhart} computes the rank correlation between leading proxies (rule pass rate, leverage scores) and lagging signals (mission progress, decision quality) to detect metric gaming \citep{goodhart1975problems, strathern1997improving}.
 
 \subsection{Layered Architecture}
 
 The architecture is explicitly divided into two layers.
 
-\textbf{Layer~0 (deterministic governance)} encompasses invariant checking, decision rules, routing, critic review, and manipulation detection. All components are deterministic, auditable, fast (under 10\,ms per decision), and testable (72 tests, including 13 for manipulation detection). No stochastic components operate at this layer.
+\textbf{Layer~0 (deterministic governance)} encompasses invariant checking, decision rules, routing, critic review, and manipulation detection. All components are deterministic, auditable, fast (under 10\,ms per decision), and testable (72 unit tests, including 13 for manipulation detection). No stochastic components operate at this layer.
 
 \textbf{Layer~1 (probabilistic reasoning)} will comprise LLM-based agents operating under Layer~0 governance. These agents will handle tasks requiring nuanced judgment, creative synthesis, and contextual interpretation. Layer~1 is not yet implemented.
 
@@ -308,7 +329,7 @@ Three real outputs from the deployed governance gateway illustrate the system's 
     "R5_antifragility": "pass"
   },
   "invariant_violations": [],
-  "leverage_score": 0.91
+  "leverage_score": "illustrative; see Section 4.6"
 }
 \end{lstlisting}
 
@@ -346,7 +367,9 @@ Three real outputs from the deployed governance gateway illustrate the system's 
 % ============================================================================
 \section{Deployment Status}
 
-The constitution is at version 0.2.0. The governance gateway is fully implemented as a deterministic pipeline. The codebase comprises 9 modules totalling approximately 800 lines of code. The test suite contains 72 tests that execute in under 2 seconds. Source code is available at \url{https://github.com/manuelcorpas/corpas-core}.
+The constitution is at version 0.2.0. The governance gateway is fully implemented as a deterministic pipeline. The codebase comprises 9 modules totalling approximately 800 lines of code. The implementation is exercised by 72 unit tests covering the Layer 0 components that execute in under 2 seconds. Source code is available at \url{https://github.com/manuelcorpas/corpas-core}.
+
+The 800-line Layer 0 codebase is a reference implementation of the governance pipeline described in Section 4.5. The architectural scope described in this paper exceeds the current implementation; the full agentic topology (Section 4.3) and Layer 1 probabilistic reasoning (Section 4.11) are not yet operational.
 
 % ============================================================================
 % 7. EVALUATION
@@ -361,15 +384,15 @@ The evaluation follows an N-of-1 longitudinal design \citep{lillie2011nof1}, app
 
 \textbf{Phase 2 (active mode):} the gateway enforces its verdicts. The user can override any decision, and overrides are logged with rationale.
 
-Six metrics are tracked across both phases: decision acceptance rate (proportion of gateway verdicts the user agrees with), decline rate (proportion of requests rejected), override rate (proportion of enforced verdicts the user reverses), decision latency (time from request to verdict), voice drift (measured by embedding distance between outputs and the user's gold-standard corpus), and prompt-injection interception rate (proportion of adversarial inputs correctly detected). Phase~1 is currently in progress.
+Six metrics are tracked across both phases: decision acceptance rate (proportion of gateway verdicts the user agrees with), decline rate (proportion of requests rejected), override rate (proportion of enforced verdicts the user reverses), decision latency (time from request to verdict), voice drift (measured by embedding distance between outputs and the user's gold-standard corpus), and prompt-injection interception rate (proportion of adversarial inputs correctly detected). Phase~1 is currently in progress. Phase 1 is designed to log a minimum of 200 governance decisions before analysis. At the author's current decision volume (approximately 15--20 governance-relevant decisions per week), this target is expected to be reached within 12 weeks of shadow-mode activation. Results will be reported in a subsequent paper.
 
 \subsection{Ablation Analysis}
 
-Three ablations test the contribution of individual components to system performance. Table~\ref{tab:ablation} shows the expected degradation for each ablation.
+Three ablations test the contribution of individual components to system performance. Table~\ref{tab:ablation} shows the anticipated effects for each ablation.
 
 \begin{table}[H]
 \centering
-\caption{Expected degradation under three ablation conditions.}
+\caption{Anticipated effects of component removal. These are predicted degradations; the ablations have not been performed.}
 \label{tab:ablation}
 \begin{tabular}{@{}lp{8cm}@{}}
 \toprule
@@ -404,9 +427,9 @@ The architecture has eight known limitations that constrain the generality of th
 
   \item \textbf{Parameter tuning by intuition.} Thresholds (e.g., the 0.6 abstention threshold, the 180-day memory half-life, the capacity budget) are set by the author's judgment, not by systematic optimisation. They may not be optimal and will require empirical calibration.
 
-  \item \textbf{User discipline dependency.} The system assumes the user will engage with override prompts, review proposed revisions, and maintain the gold corpus. If the user disengages, the system degrades.
+  \item \textbf{Self-deception risk.} A single-user system calibrated to the user's stated preferences may reinforce the user's blind spots rather than challenging them. The Critic agent mitigates this partially, but the constitutional principles themselves reflect the user's values. More fundamentally, the proposed evaluation metrics (decision acceptance rate, decline rate, override rate) measure agreement between the user and a system tuned to the user. High agreement is the expected behaviour of any function fitted to its own input. At least one external metric is needed to break this circularity: independent rater agreement on a subset of decisions, cross-user re-parameterisation effort, or adversarial decisions seeded by a third party. None of these are currently implemented.
 
-  \item \textbf{Self-deception risk.} A single-user system calibrated to the user's stated preferences may reinforce the user's blind spots rather than challenging them. The Critic agent mitigates this partially, but the constitutional principles themselves reflect the user's values.
+  \item \textbf{User discipline dependency.} The system assumes the user will engage with override prompts, review proposed revisions, and maintain the gold corpus. If the user disengages, the system degrades.
 
   \item \textbf{Absence of multi-user validation.} No evidence exists that the architecture generalises beyond the author's use case. Multi-user validation is necessary before claiming generality.
 \end{enumerate}
@@ -424,7 +447,9 @@ Constitutional AI \citep{bai2022constitutional} demonstrated that written princi
 
 Multi-agent systems have been explored extensively. AutoGen \citep{wu2023autogen} provides a framework for composing conversational agents. Toolformer \citep{schick2023toolformer} showed that language models can learn to use external tools. ReAct \citep{yao2023react} interleaved reasoning and acting in a single agent loop. Self-consistency \citep{wang2023selfconsistency} improved reasoning reliability through multiple sampling paths. Reflexion \citep{shinn2023reflexion} introduced linguistic reflection as a mechanism for agent self-improvement.
 
-Corpas-Core differs from these systems in its focus on long-term alignment with a single user's mission, its deterministic governance layer, and its explicit separation of immutable principles from revisable preferences. The bounded satisficing framework draws on \citet{simon1956rational}, and the Goodhart audit mechanism is informed by \citet{goodhart1975problems} and \citet{strathern1997improving}. The N-of-1 evaluation protocol follows the design principles articulated by \citet{lillie2011nof1}.
+Memory hierarchies for LLM agents have been explored by \citet{packer2023memgpt}, who proposed MemGPT, a system that manages working and archival memory tiers with explicit paging. Corpas-Core's four-tier hierarchy shares the principle of differentiated memory management but adds exponential decay, contradiction detection, and a curation policy not present in MemGPT. The governance gateway can be understood as a Policy Enforcement Point in the XACML access-control tradition, applied to agent actions rather than resource access. Specification gaming and reward hacking in AI systems have been characterised by \citet{krakovna2020specification}; the Goodhart audit mechanism in Corpas-Core is designed to detect a specific instance of this phenomenon.
+
+Corpas-Core differs from these systems in its focus on long-term alignment with a single user's mission, its deterministic governance layer, and its explicit separation of immutable principles from revisable preferences. The bounded satisficing framework follows \citet{simon1956rational}, and the Goodhart audit mechanism is informed by \citet{goodhart1975problems}, \citet{strathern1997improving}, and \citet{manheim2018goodhart}. The N-of-1 evaluation protocol follows the design principles articulated by \citet{lillie2011nof1}.
 
 % ============================================================================
 % 10. DISCUSSION
@@ -447,7 +472,7 @@ Fifth, the single governance gateway creates a bottleneck by design. Every agent
 
 The architecture contains both user-independent and user-specific components. User-independent components include the gateway pipeline, layered architecture, ledger schema, memory hierarchy structure, immutable/revisable separation, and evaluation harness. User-specific parameters include mission anchors, capacity budget, voice register, mode triggers, thresholds, and the gold corpus.
 
-The hypothesis is that the architecture generalises but the parameters do not. A new user would adopt the same structural components and re-parameterise them for their own objectives, voice, and constraints. Testing this hypothesis requires multi-user deployment, which is identified as a limitation in Section~8.
+The hypothesis is that the architecture generalises but the parameters do not. A new user would adopt the same structural components and re-parameterise them for their own objectives, voice, and constraints. Testing this hypothesis requires deployment across a cohort of users with different missions, voice registers, and capacity constraints. This is identified as a priority for future work. Until such a study is conducted, the generalisation claim remains an architectural hypothesis, not an empirical finding.
 
 % ============================================================================
 % 11. CONCLUSION
@@ -456,9 +481,9 @@ The hypothesis is that the architecture generalises but the parameters do not. A
 
 This paper has presented Corpas-Core, a constitutional architecture for personal agentic AI systems. The architecture addresses three structural failure modes of current personal AI implementations: strategic drift through mission-aligned decision rules, memory pathology through a four-tier hierarchy with decay and contradiction detection, and identity erosion through voice constraints enforced by an Identity Auditor and Critic.
 
-The governance gateway, \texttt{govern()}, is implemented as a deterministic ten-step pipeline operating at Layer~0. It enforces immutable invariants before scoring, detects adversarial manipulation patterns, and logs every decision to a cryptographically hashed append-only ledger. Layer~1, which will add probabilistic reasoning under Layer~0 governance, is deferred to future work. The system is validated by 72 passing tests and requires no large language model calls at the governance layer.
+The governance gateway, \texttt{govern()}, is implemented as a deterministic ten-step pipeline operating at Layer~0. It enforces immutable invariants before scoring, detects adversarial manipulation patterns, and logs every decision to a cryptographically hashed append-only ledger. Layer~1, which will add probabilistic reasoning under Layer~0 governance, is deferred to future work. The implementation is exercised by 72 unit tests covering the Layer 0 components and requires no large language model calls at the governance layer.
 
-The contributions of this paper are: (i) the constitutional architecture itself, with its separation of immutable principles and revisable preferences; (ii) a deterministic governance gateway with tested manipulation detection; (iii) a formal objective function under bounded satisficing; (iv) an N-of-1 evaluation protocol with six defined metrics; and (v) an ablation analysis of the governance components. The architecture is offered for adoption, adaptation, and critique by the research community.
+The contributions of this paper are: (i) the constitutional architecture itself, with its separation of immutable principles and revisable preferences; (ii) a deterministic governance gateway with tested manipulation detection; (iii) a constraint specification under bounded satisficing; (iv) an N-of-1 evaluation protocol with six defined metrics; and (v) an ablation analysis of the governance components. The architecture is a Layer 0 reference implementation; the full scope described in Section 4 exceeds the current codebase. The architecture is offered for adoption, adaptation, and critique by the research community.
 
 % ============================================================================
 % APPENDIX A: GLOSSARY
